@@ -27,7 +27,7 @@
   }
 </style>
           
-<div class="fixed-add-to-cart" id="mobile-add-to-cart">
+<div x-data="{ showAddToCart: false }" @scroll.window="showAddToCart = (window.scrollY > 300)" class="fixed-add-to-cart" x-show="showAddToCart" x-transition.duration.500ms id="mobile-add-to-cart">
   <select id="variant-selector">
     {% for variant in product.variants %}
       <option value="{{ variant.id }}">{{ variant.title }}</option>
@@ -37,8 +37,10 @@
     Add to Cart
   </button>
 </div>
+
 <div id="cart-feedback" style="display: none;">Item added to cart!</div>
 
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
