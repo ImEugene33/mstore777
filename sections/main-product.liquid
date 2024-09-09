@@ -802,7 +802,7 @@
     axios.get('/cart.js')
       .then(function(response) {
         const cartItemCount = response.data.item_count;
-        document.getElementById('cart-count').textContent = cartItemCount;
+        document.querySelector('.cart-count-bubble span').textContent = cartItemCount;
       })
       .catch(function(error) {
         console.error('Error updating cart count:', error);
