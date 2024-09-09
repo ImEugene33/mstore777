@@ -87,53 +87,6 @@
   });
 </script>
 
-  // // Show the "Add to Cart" button when scrolling down
-  // window.addEventListener('scroll', function() {
-  //   const mobileAddToCart = document.getElementById('mobile-add-to-cart');
-  //   if (window.scrollY > 600) { // Show after scrolling 300px down
-  //     mobileAddToCart.style.display = 'block';
-  //   } else {
-  //     mobileAddToCart.style.display = 'none';
-  //   }
-  // });
-
-  // // Handle the Add to Cart button click
-  // document.getElementById('add-to-cart-btn').addEventListener('click', function() {
-  //   const variantId = document.getElementById('variant-selector').value;
-  //   const quantity = 1; // Default quantity
-
-  //   axios.post('/cart/add.js', {
-  //     id: variantId,
-  //     quantity: quantity
-  //   })
-  //   .then(function(response) {
-  //     // Handle success
-  //     console.log('Item added to cart:', response.data);
-  //     document.getElementById('cart-feedback').style.display = 'block';
-  //     updateCartCount();
-  //   })
-  //   .catch(function(error) {
-  //     // Handle error
-  //     console.error('There was an error adding the item to the cart:', error);
-  //   });
-  // });
-
-  // // Function to update the cart counter dynamically
-  // function updateCartCount() {
-  //   axios.get('/cart.js')
-  //     .then(function(response) {
-  //       const cartItemCount = response.data.item_count;
-  //       document.querySelector('.cart-count-bubble span').textContent = cartItemCount;
-  //     })
-  //     .catch(function(error) {
-  //       console.error('Error updating cart count:', error);
-  //     });
-  // }
-
-  // // Initialize cart count when page loads
-  // document.addEventListener('DOMContentLoaded', function() {
-  //   updateCartCount();
-  // });
 {% schema %}
   {
     "name": "Sticky add",
