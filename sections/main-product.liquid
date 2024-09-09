@@ -666,6 +666,19 @@
             {{ 'products.product.view_full_details' | t }}
             {{- 'icon-arrow.svg' | inline_asset_content -}}
           </a>
+
+          <div class="fixed-add-to-cart" id="mobile-add-to-cart">
+            <select id="variant-selector">
+              {% for variant in product.variants %}
+                <option value="{{ variant.id }}">{{ variant.title }}</option>
+              {% endfor %}
+            </select>
+            <button id="add-to-cart-btn" class="add-to-cart-button">
+              Add to Cart
+            </button>
+          </div>
+          <div id="cart-feedback" style="display: none;">Item added to cart!</div>
+          
         </section>
       </div>
     </div>
