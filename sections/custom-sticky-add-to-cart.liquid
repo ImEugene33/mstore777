@@ -1,4 +1,3 @@
-<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 <style>
 .fixed-add-to-cart {
   position: fixed;
@@ -41,12 +40,20 @@
 
 <div id="cart-feedback" style="display: none;">Item added to cart!</div>
 
-
+<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  
 <script>
+  // Show the "Add to Cart" button when scrolling down
+  window.addEventListener('scroll', function() {
+    const mobileAddToCart = document.getElementById('mobile-add-to-cart');
+    if (window.scrollY > 600) { // Show after scrolling 300px down
+      mobileAddToCart.style.display = 'block';
+    } else {
+      mobileAddToCart.style.display = 'none';
+    }
+  });
+
   // Handle the Add to Cart button click
   document.getElementById('add-to-cart-btn').addEventListener('click', function() {
     const variantId = document.getElementById('variant-selector').value;
@@ -74,7 +81,6 @@
       .then(function(response) {
         const cartItemCount = response.data.item_count;
         document.querySelector('.cart-count-bubble span').textContent = cartItemCount;
-        
       })
       .catch(function(error) {
         console.error('Error updating cart count:', error);
@@ -86,7 +92,6 @@
     updateCartCount();
   });
 </script>
-
 {% schema %}
   {
     "name": "Sticky add",
