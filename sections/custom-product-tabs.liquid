@@ -1,0 +1,187 @@
+<!-- Swiper CSS -->
+<link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
+
+<!-- Swiper JS -->
+<script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
+
+<div class="tabs">
+  <ul id="tabs-nav">
+    {% for block in section.blocks %}
+      <li><a href="#tab{{forloop.index}}">{{block.settings.collection.title}}</a></li>
+    {% endfor %}
+  </ul>
+
+  <div id="tabs-content">
+    {% for block in section.blocks %}
+      <div id="tab{{forloop.index}}" class="tab-content">
+        <div class="swiper-container">
+          <div class="swiper-wrapper">
+            {% assign collection = block.settings.collection %}
+            {% for product in collection.products %}
+              <div class="swiper-slide product_grid">
+                <a href="/products/lorem-scelerisque-de-maliduard-danis">
+                  <div class="product-image" style="background-image: url('{{ product.featured_image | image_url: width: '1000x' }}');"></div>
+                </a>
+                <div class="product-title popup-cart-title">
+                  <h4><a href="{{product.url}}">{{product.title}}</a></h4>
+                </div>
+                <span>{{ product.variants[0].price | money }}</span>
+              </div>
+            {% endfor %}
+          </div>
+          <!-- Add Pagination -->
+          <div class="swiper-pagination"></div>
+          <!-- Add Navigation -->
+          <div class="swiper-button-next"></div>
+          <div class="swiper-button-prev"></div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var swiperContainers = document.querySelectorAll('.swiper-container');
+
+    swiperContainers.forEach(function(container) {
+      new Swiper(container, {
+        slidesPerView: 5,
+        spaceBetween: 10,
+        pagination: {
+          el: '.swiper-pagination',
+          clickable: true,
+        },
+        navigation: {
+          nextEl: '.swiper-button-next',
+          prevEl: '.swiper-button-prev',
+        },
+      });
+    });
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var tabLinks = document.querySelectorAll('#tabs-nav a');
+    var tabContents = document.querySelectorAll('.tab-content');
+
+    tabLinks.forEach(function(link) {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        var target = document.querySelector(this.getAttribute('href'));
+
+        // Hide all tab contents
+        tabContents.forEach(function(content) {
+          content.style.display = 'none';
+        });
+
+        // Show the selected tab content
+        target.style.display = 'block';
+
+        // Reinitialize Swiper for the visible tab
+        var swiperContainer = target.querySelector('.swiper-container');
+        if (swiperContainer) {
+          var swiper = new Swiper(swiperContainer, {
+            slidesPerView: 5,
+            spaceBetween: 10,
+            pagination: {
+              el: '.swiper-pagination',
+              clickable: true,
+            },
+            navigation: {
+              nextEl: '.swiper-button-next',
+              prevEl: '.swiper-button-prev',
+            },
+          });
+        }
+      });
+    });
+
+    // Trigger click on the first tab to display it on page load
+    if (tabLinks.length > 0) {
+      tabLinks[0].click();
+    }
+  });
+
+
+</script>
+
+<style>
+  .tabs {
+    /* Add your tab styles here */
+  }
+
+  .swiper-wrapper {
+  }
+
+  .swiper-container {
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+  }
+
+  .swiper-slide {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .product_grid {
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    padding: 10px;
+    margin: 10px;
+  }
+
+  .product-image {
+    max-width: 100%;
+    width: 200px;
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+    display: block!important;
+  }
+
+  .product-title h4 a {
+    color: #333;
+    text-decoration: none;
+  }
+
+  .swiper-pagination {
+    bottom: 10px;
+  }
+
+  .swiper-button-next,
+  .swiper-button-prev {
+    color: #333;
+  }
+
+</style>
+
+{% schema %}
+{
+  "name": "Custom Tabs",
+  "settings": [],
+  "blocks": [
+      {
+          "name": "Collection",
+          "type": "collection",
+          "limit": 5,
+          "settings": [
+              {
+                  "type": "collection",
+                  "id": "collection",
+                  "label": "Select Collection"
+              }
+          ]
+      }
+  ],
+  "presets": [
+    {
+      "name": "Custom Tabs"
+    }
+  ]
+}
+{% endschema %}
