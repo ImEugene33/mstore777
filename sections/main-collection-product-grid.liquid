@@ -125,7 +125,7 @@
         {% endif %}
       >
         {%- if collection.products.size == 0 -%}
-          <div class="collection collection--empty page-width" id="product-grid" data-id="{{ section.id }}">
+          <div class="collection  collection--empty page-width" id="product-grid" data-id="{{ section.id }}">
             <div class="loading-overlay gradient"></div>
             <div class="title-wrapper center">
               <h2 class="title title--primary">
@@ -140,14 +140,15 @@
           </div>
         {%- else -%}
           <div
-            class="collection{% if section.settings.filter_type != 'vertical' %} page-width{% endif %}"
+            class="collection {% if section.settings.filter_type != 'vertical' %} page-width{% endif %}"
           >
             <div class="loading-overlay gradient"></div>
             <ul
               id="product-grid"
               data-id="{{ section.id }}"
+              data-next-url="{{ paginate.next.url }}"
               class="
-                grid product-grid grid--{{ section.settings.columns_mobile }}-col-tablet-down
+                grid paginate-custom product-grid grid--{{ section.settings.columns_mobile }}-col-tablet-down
                 grid--{{ section.settings.columns_desktop }}-col-desktop
                 {% if section.settings.quick_add == 'bulk' %} collection-quick-add-bulk{% endif %}
               "
@@ -183,7 +184,8 @@
             </ul>
 
             {%- if paginate.pages > 1 -%}
-              {% render 'pagination', paginate: paginate, anchor: '' %}
+              {% comment %} {% render 'pagination', paginate: paginate, anchor: '' %} {% endcomment %}
+               <button class="load-more-btn">Load more</button>
             {%- endif -%}
           </div>
         {%- endif -%}
@@ -194,6 +196,38 @@
     {{ 'mask-arch.svg' | inline_asset_content }}
   {%- endif -%}
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const productsOnPage = document.querySelector('.paginate-custom');
+    let nextUrl = productsOnPage.getAttribute('data-next-url');
+
+    document.querySelector('.load-more-btn').addEventListener('click', function(e) {
+        e.preventDefault();
+
+        fetch(nextUrl, {
+            url: nextUrl,
+            method: 'GET',
+            dataType: "html",
+        })
+        .then(response => response.text())
+        .then(nextPage => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(nextPage, 'text/html');
+            const newProducts = doc.querySelector('.paginate-custom');
+
+            if (newProducts) {
+                productsOnPage.insertAdjacentHTML('beforeend', newProducts.innerHTML);
+                nextUrl = newProducts.getAttribute('data-next-url');
+            }
+        })
+        .catch(error => {
+            console.error('Error loading more products:', error);
+        });
+    });
+});
+
+</script>
 
 {% schema %}
 {
