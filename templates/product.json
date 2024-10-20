@@ -1,14 +1,11 @@
-/*
-* ------------------------------------------------------------
-* IMPORTANT: The contents of this file are auto-generated.
-*
-* This file may be updated by the Shopify admin theme editor
-* or related systems. Please exercise caution as any changes
-* made to this file may be overwritten.
-* ------------------------------------------------------------
-*/
 {
   "sections": {
+    "custom_product_block_D3ePxf": {
+      "type": "custom-product-block",
+      "settings": {
+        "heading": "Header"
+      }
+    },
     "main": {
       "type": "main-product",
       "blocks": {
@@ -70,6 +67,7 @@
         "description",
         "share"
       ],
+      "disabled": true,
       "settings": {
         "enable_sticky_info": true,
         "color_scheme": "scheme-1",
@@ -106,11 +104,13 @@
     },
     "custom_sticky_add_to_cart_qpE7wU": {
       "type": "custom-sticky-add-to-cart",
+      "disabled": true,
       "settings": {
       }
     }
   },
   "order": [
+    "custom_product_block_D3ePxf",
     "main",
     "related-products",
     "custom_sticky_add_to_cart_qpE7wU"
