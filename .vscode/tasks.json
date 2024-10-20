@@ -1,0 +1,21 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Compile Multiple SCSS Files",
+      "type": "shell",
+      "command": "sass",
+      "args": [
+        "--style=compressed",
+        "--watch",
+        "assets/custom-product-block.scss:assets/custom-product-block.css",
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": [],
+      "detail": "A task to compile multiple SCSS files to CSS"
+    }
+  ]
+}

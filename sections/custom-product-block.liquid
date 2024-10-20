@@ -1,0 +1,297 @@
+
+
+{{ 'custom-product-block.css' | asset_url | stylesheet_tag }}
+<link href="{{ 'styles.css' | asset_url }}" rel="stylesheet" type="text/css">
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap');
+</style>
+
+{% for collection in product.collections %}
+  {% assign collection_title = collection.title %}
+{% endfor %}
+
+<section class="product bg-orange-500">
+  <div class="product-grid" x-data="productVariants()">
+    <div class="product-gallery">
+      <div class="product-img" id="product-image">
+        <img id="main-image" src="{{ product.featured_image | img_url: 'large' }}" alt="{{ product.title }}">
+      </div>
+
+      <div id="thumbnails" class="thumbnails">
+        <template x-for="image in variantImages" :key="image.id">
+          <img :src="image.src.replace('.jpg', '_small.jpg')" class="thumbnail">
+        </template>
+      </div>
+    </div>
+
+    <div class="product-text">
+      <div id="product-options">
+        <p class="product-text__collection">{{ collection_title }}</p>
+        <h1 class="product-text__title">{{ product.title }}</h1>
+        <p class="product-text__price"><span class="">{{ product.price | money }}</span>{{ product.compare_at_price | money }}</p>
+        <p class="product-text__price-descr">Shipping calculated at checkout.</p>
+        <p class="product-text__description">{{ product.description | strip_html }}</p>
+
+        <!-- Color Swatches Section -->
+        <div class="colors">
+          <label class="color-label" id="color-label">COLOR: {{ product.options_with_values[0].values[0] }}</label>
+          <div id="color-swatches" class="swatches">
+            {% for option in product.options_with_values %}
+              {% if option.name == 'Color' %}
+                {% for value in option.values %}
+                  <button
+                    :style="{ 'background-color': getColorStyle('{{ value | escape }}') }"
+                    class="color-swatch"
+                    :class="{ 'selected': selectedColor === '{{ value | escape }}' }"
+                    @click="selectColor('{{ value | escape }}')">
+                  </button>
+                {% endfor %}
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+
+        <label class="size-label" id="size-label">SIZE: {{ product.options_with_values[1].values[1] }}</label>
+        <div class="sizes">
+          {% for option in product.options_with_values %}
+            {% if option.name == 'Size' %}
+              {% for value in option.values %}
+                <button class="option-button" :class="{ 'active-option': selectedSize === '{{ value | escape }}' }"
+                  @click="selectSize('{{ value | escape }}')">
+                  {{ value }}
+                </button>
+              {% endfor %}
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="custom-text">
+        <label for="custom-text">Add Custom Text:</label>
+        <input type="text" id="custom-text" placeholder="Enter custom text (optional)" x-model="customText" @input="updateTotalPrice">
+      </div>
+
+      <button class="add-to-cart" id="add-to-cart" @click="addToCart">ADD TO CART</button>
+      <p class="total">Total Price: <span id="total-price" x-text="totalPriceFormatted"></span></p>
+
+    </div>
+  </div>
+</section>
+
+<script>
+  document.addEventListener('alpine:init', () => {
+    Alpine.data('productVariants', () => ({
+      selectedColor: '',
+      selectedSize: '',
+      customText: '',
+      basePrice: 0,
+      customTextPrice: 1000,
+      variants: {{ product.variants | json }},
+      variantImages: [],
+      customTextProductId: '41744619962441',
+
+      init() {
+        const firstColor = this.getFirstOption('Color');
+        const firstSize = this.getFirstOption('Size');
+        this.selectedColor = firstColor;
+        this.selectedSize = firstSize;
+
+        this.updateImage();
+        this.updateBasePrice();
+        this.updateThumbnails();
+
+        this.updateColorLabel(firstColor);
+        this.updateSizeLabel(firstSize);
+      },
+
+      getFirstOption(optionName) {
+        const option = {{ product.options_with_values | json }}.find(opt => opt.name === optionName);
+        return option ? option.values[0] : '';
+      },
+
+      selectColor(color) {
+        this.selectedColor = color;
+        this.updateColorLabel(color);
+        this.updateImage();
+        this.updateThumbnails();
+      },
+
+      selectSize(size) {
+        this.selectedSize = size;
+        this.updateSizeLabel(size);
+        this.updateImage();
+        this.updateThumbnails();
+      },
+
+      updateImage() {
+        const variant = this.variants.find(v =>
+          v.options.includes(this.selectedColor) &&
+          v.options.includes(this.selectedSize)
+        );
+
+        if (variant && variant.featured_image) {
+          const imgSrc = variant.featured_image.src.replace('.jpg', '_large.jpg');
+          document.getElementById('main-image').src = imgSrc;
+          this.basePrice = variant.price;
+          this.updateTotalPrice();
+        } else {
+          console.error('No matching variant or image found.');
+        }
+      },
+
+      updateThumbnails() {
+        const selectedVariant = this.variants.find(v =>
+          v.options.includes(this.selectedColor) &&
+          v.options.includes(this.selectedSize)
+        );
+
+        if (selectedVariant) {
+          const otherVariantsSameSize = this.variants.filter(v =>
+            v.options.includes(this.selectedSize) && v.options[0] !== this.selectedColor
+          );
+
+          const uniqueImages = new Set();
+          this.variantImages = otherVariantsSameSize.reduce((acc, variant) => {
+            const imageSrc = variant.featured_image.src;
+            if (!uniqueImages.has(imageSrc)) {
+              uniqueImages.add(imageSrc);
+              acc.push({
+                id: variant.featured_image.id,
+                src: imageSrc
+              });
+            }
+            return acc;
+          }, []);
+        }
+      },
+
+      updateColorLabel(color) {
+        document.getElementById('color-label').textContent = `Color: ${color}`;
+      },
+
+      updateSizeLabel(size) {
+        document.getElementById('size-label').textContent = `Size: ${size}`;
+      },
+
+      getColorStyle(color) {
+        return CSS.supports(`color: ${color.toLowerCase()}`) ? color : '#CCCCCC';
+      },
+
+      updateBasePrice() {
+        const defaultVariant = this.variants[0];
+        if (defaultVariant) {
+          this.basePrice = defaultVariant.price;
+        }
+      },
+
+      updateTotalPrice() {
+        const totalPriceElement = document.getElementById('total-price');
+        totalPriceElement.textContent = this.totalPriceFormatted;
+      },
+
+      get totalPrice() {
+        return this.customText ? this.basePrice + this.customTextPrice : this.basePrice;
+      },
+
+      get totalPriceFormatted() {
+        return new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD',
+        }).format(this.totalPrice / 100);
+      },
+
+      addToCart() {
+        const selectedVariantId = this.getSelectedVariantId();
+        const customText = this.customText;
+
+        if (!selectedVariantId) {
+          console.error('No variant selected');
+          return;
+        }
+
+        const itemsToAdd = [{
+          id: selectedVariantId,
+          quantity: 1
+        }];
+
+        if (customText) {
+          itemsToAdd.push({
+            id: this.customTextProductId,
+            quantity: 1,
+            properties: {
+              'Product Title': "{{ product.title | escape }}",
+              'T-shirt text': customText,
+              'Product variant': `Size: ${this.selectedSize}, Color: ${this.selectedColor}`
+            }
+          });
+        }
+
+        const url = '/cart/add.js';
+        axios.post(url, { items: itemsToAdd })
+          .then(response => {
+            this.updateCartCount();
+          })
+          .catch(error => console.error('Error adding to cart:', error.response ? error.response.data : error.message));
+      },
+
+      updateCartCount() {
+        axios.get('/cart.js')
+          .then(function(response) {
+            const cartItemCount = response.data.item_count;
+            document.querySelector('.cart-count-bubble span').textContent = cartItemCount;
+
+            return axios.get('/cart?view=drawer');
+          })
+          .then(function(response) {
+            console.log('Raw response.data:', response.data);
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(response.data, 'text/html');
+            const newCartDrawer = doc.querySelector('#CartDrawer');
+
+            if (newCartDrawer) {
+              const cartDrawer = document.getElementById('CartDrawer');
+              cartDrawer.innerHTML = newCartDrawer.innerHTML;
+              const cartDraw = document.querySelector('cart-drawer');
+              cartDraw.classList.add('animate', 'active');
+            } else {
+              console.error('No #CartDrawer element found in the response.');
+            }
+          })
+          .catch(function(error) {
+            console.error('Error updating cart drawer or cart count:', error);
+          });
+      },
+
+      getSelectedVariantId() {
+        const variant = this.variants.find(v =>
+          v.options.includes(this.selectedColor) &&
+          v.options.includes(this.selectedSize)
+        );
+        return variant ? variant.id : null;
+      }
+    }));
+  });
+</script>
+
+{% schema %}
+  {
+  "name": "Custom Product Section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Your Custom Product"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom Product Block",
+      "category": "Custom"
+    }
+  ]
+  }
+{% endschema %}
